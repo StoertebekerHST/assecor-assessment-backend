@@ -61,4 +61,16 @@ public class DataService {
 	}
 	
 	
+	/**
+	 * DatenService zum hinzufügen einer neuen Person
+	 * @param addPerson neue Person
+	 * @return neue Person mit ID
+	 * @throws Exception
+	 */
+	public static Person addPerson(Person addPerson) throws Exception {
+		PropertieService propService = new PropertieService();
+		CSVPerson persons = new CSVPerson(propService.getProperty("csvdatei"));
+		return persons.addPerson(addPerson);
+		
+	}
 }
