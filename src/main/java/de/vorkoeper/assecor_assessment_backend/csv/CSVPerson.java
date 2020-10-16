@@ -3,15 +3,22 @@ package de.vorkoeper.assecor_assessment_backend.csv;
 import java.awt.List;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+
+import de.vorkoeper.assecor_assessment_backend.model.Color;
 import de.vorkoeper.assecor_assessment_backend.model.Person;
 
 public class CSVPerson {
@@ -90,5 +97,48 @@ public class CSVPerson {
 	     
 	     return personList;
 		
+	}
+	
+	/**
+	 * Liefert die zu letzt eingetragene Person 
+	 * @return letzte Person
+	 * @throws Exception
+	 */
+	private Person getLastPerson() throws Exception {
+		Person lastPerson = null;
+		for (Person person : getPersonList().values()) {
+			lastPerson = person;
+		}
+		
+		return lastPerson;
+	}
+	
+	/**
+	 * Fügt eine Person in die CSV-Datei ein
+	 * @param addPerson neue Person
+	 * @return neue Person mit ID
+	 * @throws Exception
+	 */
+	public Person addPerson(Person addPerson) throws Exception{
+		
+		CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(csvFile),"UTF-8"));
+		String [] line;
+		
+		ArrayList<String[]> personsList = new ArrayList<String[]>();
+		
+		while ((line = reader.readNext()) != null) {
+			personsList.add(line);			
+		}
+		String[] newperson = { addPerson.getLastname(), addPerson.getName(), addPerson.getZipcode()+ " "+addPerson.getCity(), Color.getColorID(addPerson.getColor()) };
+		personsList.add(newperson);
+		reader.close();
+		
+		CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csvFile),"UTF-8"), ',',CSVWriter.NO_QUOTE_CHARACTER, 
+                CSVWriter.DEFAULT_ESCAPE_CHARACTER, 
+                CSVWriter.RFC4180_LINE_END); 
+		writer.writeAll(personsList);
+		writer.close();
+		
+		return getLastPerson();
 	}
 }
